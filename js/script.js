@@ -7,7 +7,7 @@ $(document).ready(function () {
         zoom: 5
     });
     map.addControl(new mapboxgl.NavigationControl());
-    
+
     const layerList = document.getElementById('menu');
     const inputs = layerList.getElementsByTagName('input');
 
@@ -28,8 +28,13 @@ $(document).ready(function () {
                 dataType: "json",
                 success: function (data) {
                     response($.map(data.etablissement, function (item) {
+                        if (item.l2_normalisee != null) {
+                            var label = item.nom_raison_sociale + " (" + item.l2_normalisee + ") - " + item.code_postal + " - " + item.libelle_commune;
+                        } else {
+                            var label = item.nom_raison_sociale + " - " + item.code_postal + " - " + item.libelle_commune;
+                        }
                         return {
-                            label: item.nom_raison_sociale + " - " + item.code_postal + " - " + item.libelle_commune,
+                            label: label,
                             nom_raison_sociale: item.nom_raison_sociale,
                             code_postal: item.code_postal,
                             libelle_commune: item.libelle_commune,
