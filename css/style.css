@@ -45,7 +45,6 @@ p {
     left: 0;
     right: 0;
     height: 500px;
-    width: 1000px;
     border-radius: 20px;
     border: 4px solid black;
     display: block;
@@ -70,8 +69,7 @@ p {
 }
 
 #search {
-    position: relative;
-    width: 400px;
+    width: 25%;
     min-width: 250px;
     height: 25px;
     border-radius: 5px;
@@ -91,7 +89,6 @@ p {
     padding: 0;
     margin: 0;
     z-index: 1;
-    font: arial;
     border-radius: 5px;
 }
 

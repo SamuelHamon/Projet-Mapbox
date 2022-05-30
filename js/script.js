@@ -18,6 +18,17 @@ $(document).ready(function () {
         };
     }
 
+    $("#map").css("max-width", $("#intro").css("width"));
+    $(window).resize(function () {
+        $("#map").css("max-width", $("#intro").css("width"));
+        window.setTimeout(() => map.resize());
+    });
+
+    $("#ui-id-1").css("max-width", $("#search").css("width"));
+    $(window).resize(function () {
+        $("#ui-id-1").css("max-width", $("#search").css("width"));
+    });
+
     $("#search").autocomplete({
         source: function (request, response) {
             $.ajax({
