@@ -32,52 +32,80 @@ $(document).ready(function () {
     $("#search").autocomplete({
         source: function (request, response) {
             $.ajax({
-                url: "https://entreprise.data.gouv.fr/api/sirene/v1/full_text/" + $("#search").val(),
+                url: "https://recherche-entreprises.api.gouv.fr/search?" + $("#search").val(),
                 data: {
                     q: request.term
                 },
                 dataType: "json",
                 success: function (data) {
-                    response($.map(data.etablissement, function (item) {
-                        if (item.l2_normalisee != null) {
-                            var label = item.nom_raison_sociale + " (" + item.l2_normalisee + ") - " + item.code_postal + " - " + item.libelle_commune;
+                    response($.map(data.results, function (item) {
+                        if (item.nom_raison_sociale == null) {
+                            var label = item.nom_complet + " - " + item.siege.code_postal + " - " + item.siege.libelle_commune;
                         } else {
-                            var label = item.nom_raison_sociale + " - " + item.code_postal + " - " + item.libelle_commune;
+                            var label = item.nom_raison_sociale + " - " + item.siege.code_postal + " - " + item.siege.libelle_commune;
+                        }
+                        var adresse = ""
+                        if (item.siege.numero_voie != null){
+                            adresse += item.siege.numero_voie + " "
+                        }
+                        if (item.siege.type_voie != null){
+                            adresse += item.siege.type_voie + " "
+                        }
+                        if (item.siege.libelle_voie != null){
+                            adresse += item.siege.libelle_voie
                         }
                         return {
                             label: label,
                             nom_raison_sociale: item.nom_raison_sociale,
-                            code_postal: item.code_postal,
-                            libelle_commune: item.libelle_commune,
-                            geo_l4: item.geo_l4,
-                            libelle_region: item.libelle_region,
-                            siret: item.siret,
+                            nom_complet: item.nom_complet,
+                            code_postal: item.siege.code_postal,
+                            libelle_commune: item.siege.libelle_commune,
+                            adresse: adresse,
                             siren: item.siren,
-                            libelle_activite_principale: item.libelle_activite_principale,
-                            libelle_nature_juridique_entreprise: item.libelle_nature_juridique_entreprise,
+                            siret: item.siege.siret,
+                            activite_principale: item.activite_principale,
+                            nature_juridique: item.nature_juridique,
                             categorie_entreprise: item.categorie_entreprise,
+                            etat_administratif : item.etat_administratif,
                             date_creation: item.date_creation,
-                            updated_at: item.updated_at,
-                            latitude: item.latitude,
-                            longitude: item.longitude
+                            date_mise_a_jour: item.date_mise_a_jour,
+                            latitude: item.siege.latitude,
+                            longitude: item.siege.longitude,
+                            nombre_etablissements: item.nombre_etablissements,
+                            nombre_etablissements_ouverts: item.nombre_etablissements_ouverts
                         };
                     }));
                 }
             });
         },
         select: function (event, ui) {
+            var datas = {
+                "Raison sociale": ui.item.nom_raison_sociale,
+                "Nom complet": ui.item.nom_complet,
+                "Code postal": ui.item.code_postal,
+                "Libelle commune": ui.item.libelle_commune,
+                "Adresse": ui.item.adresse,
+                "Siren": ui.item.siren,
+                "Siret": ui.item.siret,
+                "Activite_principale": ui.item.activite_principale,
+                "Nature juridique": ui.item.nature_juridique,
+                "Categorie entreprise": ui.item.categorie_entreprise,
+                "Etat administratif": ui.item.etat_administratif,
+                "Date creation": ui.item.date_creation,
+                "Nombre d'établissements": ui.item.nombre_etablissements,
+                "Nombre d'établissements ouverts": ui.item.nombre_etablissements_ouverts
+            };
 
-            var date = ui.item.date_creation;
-            var d = date.substring(6, 8);
-            var m = date.substring(4, 6);
-            var y = date.substring(0, 4);
-            var formattedDate = d + "/" + m + "/" + y;
+            var infos = "";
 
-            var infos = "Nom : <b>" + ui.item.nom_raison_sociale + "</b><br>Adresse : <b>" + ui.item.geo_l4 + "</b><br>Commune : <b>" + ui.item.libelle_commune +
-                "</b><br>Code postal : <b>" + ui.item.code_postal + "</b><br>Région : <b>" + ui.item.libelle_region +
-                "</b><br>Activité principale : <b>" + ui.item.libelle_activite_principale + "</b><br>Nature juridique entreprise : <b>" + ui.item.libelle_nature_juridique_entreprise +
-                "</b><br>Catégorie entreprise : <b>" + ui.item.categorie_entreprise + "</b><br>Date création : <b>" + formattedDate +
-                "</b><br><small>Mise à jour le : " + ui.item.updated_at + "</small>";
+            for (var key in datas) {
+                var value = datas[key];
+                if (value != null && value != "") {
+                    infos += key + " : <b>" + value + "</b><br>";
+                }
+            }
+
+            infos += "<small>Mise à jour le : " + ui.item.date_mise_a_jour + "</small>";
 
             marker(ui.item.latitude, ui.item.longitude, infos);
         }
